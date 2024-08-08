@@ -2,17 +2,33 @@
 
 ### 使用docker运行
 
+amd64架构请使用
+
 ```shell
-docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:latest
+docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:amd64
+```
+
+arm64架构请使用
+
+```
+docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:arm64
 ```
 
 USER填写用来登录的账号
 
 PWD填写用来登录的密码
 
+注：默认使用80端口，如需要更改端口为8080可使用
+
+```
+docker run -d -p 8080:80 -e username=USER -e password=PWD --name igotolib shiguang2/igotolib-person:latest
+```
+
 ### 使用教程
 
-运行成功后，打开http://ip:80，即可使用，账号和密码填写上面设置的。
+运行成功后，打开http://ip:80
+
+即可使用，账号和密码填写上面设置的。
 
 #### 设置位置和时间
 
