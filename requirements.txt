@@ -1,0 +1,7 @@
+pywebio
+pywebio_battery
+pymemcache
+requests
+apscheduler
+pycryptodome
+websockets
