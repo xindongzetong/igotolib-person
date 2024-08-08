@@ -21,7 +21,7 @@ PWD填写用来登录的密码
 注：默认使用80端口，如需要更改端口为8080可使用
 
 ```
-docker run -d -p 8080:80 -e username=USER -e password=PWD --name igotolib shiguang2/igotolib-person:latest
+docker run -d -p 8080:80 -e username=USER -e password=PWD --name igotolib shiguang2/igotolib-person:amd64
 ```
 
 ### 使用教程
