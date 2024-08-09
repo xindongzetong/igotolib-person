@@ -68,7 +68,7 @@ class Crawl:
 
     def wechat_update(self):
         try:
-            url = 'https://wechat.v2.traceint.com/index.php/reserve/index.html?f=wechat'
+            url = 'https://wechat.v2.traceint.com/index.php/wxApp/index.html'
             headers = {'Host': 'wechat.v2.traceint.com',
                        'User-Agent': 'Mozilla/5.0 (Linux; Android 7.0; MI 5 Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, '
                                      'like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/6.2 TBS/043909 Mobile '
