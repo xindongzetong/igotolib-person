@@ -78,7 +78,7 @@ def sign_in(sess_id, major, minor):
 def cookie_task():
     client = Client(('localhost', 11211))
     authorization = client.get('authorization').decode('utf-8')
-    sess_id = client.get('authorization').decode('utf-8')
+    sess_id = client.get('sess_id').decode('utf-8')
     if authorization != '-1':
         new_cookie = Crawl(authorization).cookie_update()
         if 'Authorization' in new_cookie:
