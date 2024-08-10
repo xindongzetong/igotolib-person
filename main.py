@@ -3,6 +3,8 @@ import time
 from pywebio import *
 import pywebio_battery
 from crawldata import Crawl
+from check import Check
+from withdraw import Withdraw
 import hashlib
 import utils
 from pymemcache.client.base import PooledClient
@@ -49,7 +51,6 @@ def set_seat_time():
             scheduler.remove_job(job_id='task')
     client.set('task', infor['task'])
     client.set('time', infor['time'])
-    client.close()
     output.toast('设置完成', position='center', color='#2188ff', duration=1)
     time.sleep(1)
     session.go_app('index', new_window=False)
@@ -88,6 +89,37 @@ def set_sign():
     session.go_app('index', new_window=False)
 
 
+def set_integral():
+    check = client.get('check').decode('utf-8')
+    withdraw = client.get('withdraw').decode('utf-8')
+    infor = input.input_group('设置积分任务', [
+        input.radio(label='自动签到领积分', name='check', inline=True, options=[('启用自动签到', '1'), ('不启用自动签到', '0')],
+                    required=True, value=check, help_text="每日09:00自动签到"),
+        input.input(label='自动退座得积分', name='withdraw', type=input.TIME, value=withdraw,
+                    required=True, help_text="00:00则不启动自动退座")
+    ])
+    if infor['check'] != '1':
+        scheduler.add_job(id='check', func=process_check, trigger='cron', hour=9, minute=0, second=0,
+                          replace_existing=True)
+    else:
+        if scheduler.get_job(job_id='check'):
+            # 如果存在相同的ID任务，删掉
+            scheduler.remove_job(job_id='check')
+    if infor['withdraw'] != '00:00':
+        h, m = int(infor['withdraw'].split(':')[0]), int(infor['withdraw'].split(':')[1])
+        scheduler.add_job(id='check', func=process_withdraw, trigger='cron', hour=h, minute=m, second=0,
+                          replace_existing=True)
+    else:
+        if scheduler.get_job(job_id='withdraw'):
+            # 如果存在相同的ID任务，删掉
+            scheduler.remove_job(job_id='withdraw')
+    client.set('check', infor['check'])
+    client.set('withdraw', infor['withdraw'])
+    output.toast('设置完成', position='center', color='#2188ff', duration=1)
+    time.sleep(1)
+    session.go_app('index', new_window=False)
+
+
 def index():
     session_id = pywebio_battery.get_cookie('IGOSESSION')
     if session_id is not None:
@@ -95,12 +127,14 @@ def index():
         password = os.getenv('password')
         new = hashlib.md5(f'{username}{password}'.encode()).hexdigest()
         if new == session_id:
-            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '打赏作者'])
+            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '设置积分任务', '打赏作者'])
             output.clear()
             if act == '设置位置及时间':
                 set_seat_time()
             elif act == '设置打卡':
                 set_sign()
+            elif act == '设置积分任务':
+                set_integral()
             elif act == '打赏作者':
                 img = open('./appreciate.jpg', 'rb').read()
                 output.put_image(img, width='300px')
@@ -135,9 +169,25 @@ def process_task(task, floor, seat):
         reserve = Reserve(cookie)
         for i in range(5):
             if reserve.choose_seat(floor, seat):
+                major = client.get('major').decode('utf-8')
+                minor = client.get('minor').decode('utf-8')
+                if major != '' and minor != '':
+                    time.sleep(60)
+                    sess_id = client.get('sess_id').decode('utf-8')
+                    utils.sign_in(sess_id[14:], major, minor)
                 break
     else:
         Prereserve(cookie).prereserve(floor, seat)
+
+
+def process_check():
+    cookie = client.get('authorization').decode('utf-8')
+    Check(cookie).check_in()
+
+
+def process_withdraw():
+    cookie = client.get('authorization').decode('utf-8')
+    Withdraw(cookie).withdraw()
 
 
 if __name__ == '__main__':
@@ -153,6 +203,8 @@ if __name__ == '__main__':
     client.set('time', '00:00')
     client.set('major', '')
     client.set('minor', '')
+    client.set('check', '0')
+    client.set('withdraw', '00:00')
     scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=2)
     start_server(index, port=80)
     config(title='我去图书馆选座', theme='yeti')

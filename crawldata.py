@@ -32,10 +32,6 @@ class Crawl:
                            "user_student_no\n user_student_name\n area_name\n user_deny {\n deny_deadline\n }\n sch "
                            "{\n sch_id\n sch_name\n activityUrl\n isShowCommon\n isBusy\n }\n }\n }\n "
                            "ad(pos: $pos, param: $param) {\n name\n pic\n url\n }\n}", "variables": {"pos": "App-首页"}}
-    cancle_body = {"operationName":"reserveCancle","query":"mutation reserveCancle($sToken: String!) {\n userAuth {\n "
-                                                           "reserve {\n reserveCancle(sToken: $sToken) {\n "
-                                                           "timerange\n img\n hours\n mins\n per\n }\n }\n }\n}",
-                   "variables":{"sToken":""}}
 
     def __init__(self, cookie):
         self.cookie = cookie + '; FROM_TYPE=weixin; v=5.5; Hm_lvt_7ecd21a13263a714793f376c18038a87=1713417820,1714277047,1714304621,1714376091; ' \
