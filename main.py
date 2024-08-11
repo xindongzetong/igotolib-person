@@ -98,7 +98,7 @@ def set_integral():
         input.input(label='自动退座得积分', name='withdraw', type=input.TIME, value=withdraw,
                     required=True, help_text="00:00则不启动自动退座")
     ])
-    if infor['check'] != '1':
+    if infor['check'] == '1':
         scheduler.add_job(id='check', func=process_check, trigger='cron', hour=9, minute=0, second=0,
                           replace_existing=True)
     else:
