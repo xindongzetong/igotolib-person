@@ -2,16 +2,8 @@
 
 ### 使用docker运行
 
-amd64架构请使用
-
 ```shell
-docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:amd64
-```
-
-arm64架构请使用
-
-```
-docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:arm64
+docker run -d -e username=USER -e password=PWD --network host --name igotolib shiguang2/igotolib-person:latest
 ```
 
 USER填写用来登录的账号
