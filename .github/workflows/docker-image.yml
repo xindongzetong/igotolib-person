@@ -24,7 +24,7 @@ jobs:
     - name: Build and Push the Docker image
       uses: docker/build-push-action@v2.4.0
       with:
-          context: ./igotolib-person
+          context: ./
           platforms: linux/arm64,linux/amd64
           push: true
           tags: shiguang2/igotolib-person:latest
