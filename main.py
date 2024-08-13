@@ -4,6 +4,7 @@ from pywebio import *
 import pywebio_battery
 from crawldata import Crawl
 from check import Check
+from hold import Hold
 from withdraw import Withdraw
 import hashlib
 import utils
@@ -91,29 +92,53 @@ def set_sign():
 
 def set_integral():
     check = client.get('check').decode('utf-8')
+    hold = client.get('hold').decode('utf-8')
+    start = client.get('start').decode('utf-8')
+    numbers = client.get('numbers').decode('utf-8')
     withdraw = client.get('withdraw').decode('utf-8')
     infor = input.input_group('设置积分任务', [
-        input.radio(label='自动签到领积分', name='check', inline=True, options=[('启用自动签到', '1'), ('不启用自动签到', '0')],
-                    required=True, value=check, help_text="每日10:30自动签到"),
-        input.input(label='自动退座得积分', name='withdraw', type=input.TIME, value=withdraw,
+        input.input(label='自动签到', name='check', type=input.TIME, value=check,
+                    required=True, help_text="00:00则不启动自动签到"),
+        input.radio(label='自动暂离', name='hold', inline=True, options=[('启用自动暂离', '1'), ('不启用自动暂离', '0')],
+                    required=True, value=hold, help_text="从开始时间开始每隔2小时执行一次"),
+        input.input(label='自动暂离开始时间', name='start', type=input.TIME, value=start,
+                    required=True),
+        input.select(label='自动暂离执行次数', name='numbers', options=['1', '2', '3', '4', '5'], value=numbers,
+                     required=True),
+        input.input(label='自动退座', name='withdraw', type=input.TIME, value=withdraw,
                     required=True, help_text="00:00则不启动自动退座")
     ])
-    if infor['check'] == '1':
-        scheduler.add_job(id='check', func=process_check, trigger='cron', hour=10, minute=30, second=0,
+    if infor['check'] != '00:00':
+        h, m = int(infor['check'].split(':')[0]), int(infor['check'].split(':')[1])
+        scheduler.add_job(id='check', func=process_check, trigger='cron', hour=h, minute=m, second=1,
                           replace_existing=True)
     else:
         if scheduler.get_job(job_id='check'):
             # 如果存在相同的ID任务，删掉
             scheduler.remove_job(job_id='check')
+    if infor['hold'] == '1':
+        h, m = int(infor['start'].split(':')[0]), int(infor['start'].split(':')[1])
+        for i in range(int(infor['numbers'])):
+            scheduler.add_job(id='hold_' + str(i), func=process_hold, trigger='cron', hour=h, minute=m, second=1,
+                              replace_existing=True)
+            h += 2
+    else:
+        for i in range(5):
+            if scheduler.get_job(job_id='hold_' + str(i)):
+                # 如果存在相同的ID任务，删掉
+                scheduler.remove_job(job_id='hold_' + str(i))
     if infor['withdraw'] != '00:00':
         h, m = int(infor['withdraw'].split(':')[0]), int(infor['withdraw'].split(':')[1])
-        scheduler.add_job(id='check', func=process_withdraw, trigger='cron', hour=h, minute=m, second=0,
+        scheduler.add_job(id='check', func=process_withdraw, trigger='cron', hour=h, minute=m, second=1,
                           replace_existing=True)
     else:
         if scheduler.get_job(job_id='withdraw'):
             # 如果存在相同的ID任务，删掉
             scheduler.remove_job(job_id='withdraw')
     client.set('check', infor['check'])
+    client.set('hold', infor['hold'])
+    client.set('start', infor['start'])
+    client.set('numbers', infor['numbers'])
     client.set('withdraw', infor['withdraw'])
     output.toast('设置完成', position='center', color='#2188ff', duration=1)
     time.sleep(1)
@@ -185,6 +210,11 @@ def process_check():
     Check(cookie).check_in()
 
 
+def process_hold():
+    cookie = client.get('authorization').decode('utf-8')
+    Hold(cookie).hold()
+
+
 def process_withdraw():
     cookie = client.get('authorization').decode('utf-8')
     Withdraw(cookie).withdraw()
@@ -203,8 +233,11 @@ if __name__ == '__main__':
     client.set('time', '00:00')
     client.set('major', '')
     client.set('minor', '')
-    client.set('check', '0')
+    client.set('check', '00:00')
+    client.set('hold', '0')
+    client.set('start', '00:00')
+    client.set('numbers', '1')
     client.set('withdraw', '00:00')
     scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=2)
     start_server(index, port=80)
-    config(title='我去图书馆选座', theme='yeti')
+    config(title='我去图书馆选座', theme='yeti', cdn=False)

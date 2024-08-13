@@ -1,12 +1,13 @@
-import requests
 import random
 import time
+import requests
 
 
-class Withdraw:
+class Hold:
     SERVERID = ['82967fec9605fac9a28c437e2a3ef1a4', 'b9fc7bd86d2eed91b23d7347e0ee995e',
                 'e3fa93b0fb9e2e6d4f53273540d4e924', 'd3936289adfff6c3874a2579058ac651']
-    headers = {'Host': 'wechat.v2.traceint.com', 'Connection': 'keep-alive', 'App-Version': '2.0.14', 'Origin': 'https://web.traceint.com',
+    headers = {'Host': 'wechat.v2.traceint.com', 'Connection': 'keep-alive', 'App-Version': '2.0.14',
+               'Origin': 'https://web.traceint.com',
                'User-Agent': 'Mozilla/5.0 (Linux; Android 11; M2012K11AC Build/RKQ1.200826.002; wv) AppleWebKit/537.36 '
                              '(KHTML, like Gecko) Version/4.0 Chrome/86.0.4240.99 XWEB/3149 MMWEBSDK/20211001 Mobile '
                              'Safari/537.36 MMWEBID/68 MicroMessenger/8.0.16.2040(0x28001053) Process/toolsmp '
@@ -31,11 +32,8 @@ class Withdraw:
                            "isShowCommon\n isBusy\n }\n }\n }\n ad(pos: $pos, param: $param) {\n name\n pic\n url\n "
                            "}\n}",
                   "variables": {"pos": "App-首页"}}
-    withdraw_body = {"operationName": "reserveCancle",
-                   "query": "mutation reserveCancle($sToken: String!) {\n userAuth {\n "
-                            "reserve {\n reserveCancle(sToken: $sToken) {\n "
-                            "timerange\n img\n hours\n mins\n per\n }\n }\n }\n}",
-                   "variables": {"sToken": ""}}
+    hold_body = {"operationName": "reserveHold",
+                 "query": "mutation reserveHold {\n userAuth {\n reserve {\n reserveHold\n }\n }\n}"}
 
     def __init__(self, cookie):
         self.cookie = cookie + '; v=5.5; Hm_lvt_7ecd21a13263a714793f376c18038a87=1713417820,1714277047,1714304621,1714376091; ' \
@@ -43,14 +41,14 @@ class Withdraw:
                       random.choice(self.SERVERID) + '|' + str(int(time.time() - 1)) + '|1714376087'
         self.headers['Cookie'] = self.cookie
 
-    def withdraw(self):
+    def hold(self):
         try:
             r = requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.index_body,
                               headers=self.headers).json()
-            if r["data"]["userAuth"] is not None:
-                SToken = r["data"]["userAuth"]["reserve"]["getSToken"]
-                self.withdraw_body['variables']['sToken'] = SToken
-                requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.withdraw_body,
-                              headers=self.headers)
+            if r["data"]["userAuth"] is not None and r["data"]["userAuth"]["reserve"]["reserve"] is not None:
+                status = r["data"]["userAuth"]["reserve"]["reserve"]["status"]
+                if status == 3:
+                    requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.hold_body,
+                                  headers=self.headers)
         except Exception as e:
             print(e)
