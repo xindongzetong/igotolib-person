@@ -12,7 +12,7 @@
 
 - 无数据库模式，重启即信息失效
 
-- Docker快速一键搭建，腾讯云精选特惠：[点我进入]: https://curl.qcloud.com/y7fKu56t
+- Docker快速一键搭建，腾讯云精选特惠：[点我进入](https://curl.qcloud.com/y7fKu56t)
 
 
 ### 功能
