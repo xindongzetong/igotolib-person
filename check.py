@@ -30,8 +30,9 @@ class Check:
                 try:
                     check_id = r["data"]["userAuth"]["credit"]["tasks"][0]["id"]
                     self.check_body["variables"]["user_task_id"] = check_id
-                    requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.check_body,
-                                  headers=self.headers)
+                    for j in range(5):
+                        requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.check_body,
+                                      headers=self.headers)
                     break
                 except Exception as e:
                     print(e)
