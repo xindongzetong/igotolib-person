@@ -91,12 +91,15 @@ def set_sign():
 
 
 def set_integral():
+    signin = client.get('signin').decode('utf-8')
     check = client.get('check').decode('utf-8')
     hold = client.get('hold').decode('utf-8')
     start = client.get('start').decode('utf-8')
     numbers = client.get('numbers').decode('utf-8')
     withdraw = client.get('withdraw').decode('utf-8')
     infor = input.input_group('设置积分任务', [
+        input.input(label='自动蓝牙打卡', name='signin', type=input.TIME, value=signin,
+                    required=True, help_text="00:00则不启动自动签到"),
         input.input(label='自动签到', name='check', type=input.TIME, value=check,
                     required=True, help_text="00:00则不启动自动签到"),
         input.radio(label='自动暂离', name='hold', inline=True, options=[('启用自动暂离', '1'), ('不启用自动暂离', '0')],
@@ -108,6 +111,14 @@ def set_integral():
         input.input(label='自动退座', name='withdraw', type=input.TIME, value=withdraw,
                     required=True, help_text="00:00则不启动自动退座")
     ])
+    if infor['signin'] != '00:00':
+        h, m = int(infor['signin'].split(':')[0]), int(infor['signin'].split(':')[1])
+        scheduler.add_job(id='signin', func=process_signin, trigger='cron', hour=h, minute=m, second=1,
+                          replace_existing=True)
+    else:
+        if scheduler.get_job(job_id='signin'):
+            # 如果存在相同的ID任务，删掉
+            scheduler.remove_job(job_id='signin')
     if infor['check'] != '00:00':
         h, m = int(infor['check'].split(':')[0]), int(infor['check'].split(':')[1])
         scheduler.add_job(id='check', func=process_check, trigger='cron', hour=h, minute=m, second=1,
@@ -135,6 +146,7 @@ def set_integral():
         if scheduler.get_job(job_id='withdraw'):
             # 如果存在相同的ID任务，删掉
             scheduler.remove_job(job_id='withdraw')
+    client.set('signin', infor['signin'])
     client.set('check', infor['check'])
     client.set('hold', infor['hold'])
     client.set('start', infor['start'])
@@ -152,13 +164,13 @@ def index():
         password = os.getenv('password')
         new = hashlib.md5(f'{username}{password}'.encode()).hexdigest()
         if new == session_id:
-            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '设置积分任务', '打赏作者'])
+            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '设置日常任务', '打赏作者'])
             output.clear()
             if act == '设置位置及时间':
                 set_seat_time()
             elif act == '设置打卡':
                 set_sign()
-            elif act == '设置积分任务':
+            elif act == '设置日常任务':
                 set_integral()
             elif act == '打赏作者':
                 img = open('./appreciate.jpg', 'rb').read()
@@ -194,15 +206,17 @@ def process_task(task, floor, seat):
         reserve = Reserve(cookie)
         for i in range(5):
             if reserve.choose_seat(floor, seat):
-                major = client.get('major').decode('utf-8')
-                minor = client.get('minor').decode('utf-8')
-                if major != '' and minor != '':
-                    time.sleep(60)
-                    sess_id = client.get('sess_id').decode('utf-8')
-                    utils.sign_in(sess_id[14:], major, minor)
                 break
     else:
         Prereserve(cookie).prereserve(floor, seat)
+
+
+def process_signin():
+    major = client.get('major').decode('utf-8')
+    minor = client.get('minor').decode('utf-8')
+    if major != '' and minor != '':
+        sess_id = client.get('sess_id').decode('utf-8')
+        utils.sign_in(sess_id[14:], major, minor)
 
 
 def process_check():
@@ -233,11 +247,12 @@ if __name__ == '__main__':
     client.set('time', '00:00')
     client.set('major', '')
     client.set('minor', '')
+    client.set('signin', '00:00')
     client.set('check', '00:00')
     client.set('hold', '0')
     client.set('start', '00:00')
     client.set('numbers', '1')
     client.set('withdraw', '00:00')
     scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=2)
+    config(title='我去图书馆选座', theme='yeti')
     start_server(index, port=80)
-    config(title='我去图书馆选座', theme='yeti', cdn=False)
