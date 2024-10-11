@@ -97,9 +97,9 @@ def set_integral():
     start = client.get('start').decode('utf-8')
     numbers = client.get('numbers').decode('utf-8')
     withdraw = client.get('withdraw').decode('utf-8')
-    infor = input.input_group('设置积分任务', [
+    infor = input.input_group('设置日常任务', [
         input.input(label='自动蓝牙打卡', name='signin', type=input.TIME, value=signin,
-                    required=True, help_text="00:00则不启动自动签到"),
+                    required=True, help_text="00:00则不启动自动打卡"),
         input.input(label='自动签到', name='check', type=input.TIME, value=check,
                     required=True, help_text="00:00则不启动自动签到"),
         input.radio(label='自动暂离', name='hold', inline=True, options=[('启用自动暂离', '1'), ('不启用自动暂离', '0')],
@@ -255,4 +255,4 @@ if __name__ == '__main__':
     client.set('withdraw', '00:00')
     scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=2)
     config(title='我去图书馆选座', theme='yeti')
-    start_server(index, port=80)
+    start_server(index, port=80, cdn=False)
