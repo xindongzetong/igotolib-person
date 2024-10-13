@@ -23,6 +23,7 @@ def set_seat_time():
     cookie = client.get('authorization').decode('utf-8')
     task = client.get('task').decode('utf-8')
     moment = client.get('time').decode('utf-8')
+    delay = client.get('delay').decode('utf-8')
     seat_info = Crawl(cookie).get_info()
     while not seat_info:
         img = open('./qr.png', 'rb').read()
@@ -40,16 +41,19 @@ def set_seat_time():
         input.input(label='位置信息', name='seat', type=input.TEXT, value=seat_info['info'], readonly=True),
         input.radio(label='选座任务', name='task', inline=True, options=[('定时选座', '1'), ('明日预约', '2'), ('不启用选座', '0')],
                     required=True, value=task),
-        input.input(label='选座时间', name='time', type=input.TIME, value=moment, required=True)
+        input.input(label='选座时间', name='time', type=input.TIME, value=moment, required=True),
+        input.slider(label="选座延迟秒数", name='delay', min_value=0, max_value=59, value=int(delay), required=True)
     ])
     h, m = int(infor['time'].split(':')[0]), int(infor['time'].split(':')[1])
+    s = int(infor['delay'])
     if infor['task'] != '0':
-        scheduler.add_job(id='task', func=process_task, trigger='cron', hour=h, minute=m, second=0,
+        scheduler.add_job(id='task', func=process_task, trigger='cron', hour=h, minute=m, second=s,
                           args=[infor['task'], seat_info['lib_id'], seat_info['seat_key']], replace_existing=True)
     else:
         if scheduler.get_job(job_id='task'):
             # 如果存在相同的ID任务，删掉
             scheduler.remove_job(job_id='task')
+    client.set('delay', infor['delay'])
     client.set('task', infor['task'])
     client.set('time', infor['time'])
     output.toast('设置完成', position='center', color='#2188ff', duration=1)
@@ -245,6 +249,7 @@ if __name__ == '__main__':
     client.set('sess_id', '-1')
     client.set('task', '0')
     client.set('time', '00:00')
+    client.set('delay', '0')
     client.set('major', '')
     client.set('minor', '')
     client.set('signin', '00:00')
