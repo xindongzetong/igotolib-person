@@ -258,6 +258,6 @@ if __name__ == '__main__':
     client.set('start', '00:00')
     client.set('numbers', '1')
     client.set('withdraw', '00:00')
-    scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=2)
+    scheduler.add_job(id='cookie_task', func=utils.cookie_task, trigger='interval', minutes=7)
     config(title='我去图书馆选座', theme='yeti')
     start_server(index, port=80, cdn=False)

@@ -6,14 +6,10 @@ import time
 class Check:
     SERVERID = ['82967fec9605fac9a28c437e2a3ef1a4', 'b9fc7bd86d2eed91b23d7347e0ee995e',
                 'e3fa93b0fb9e2e6d4f53273540d4e924', 'd3936289adfff6c3874a2579058ac651']
-    headers = {'Host': 'wechat.v2.traceint.com', 'Connection': 'keep-alive', 'Origin': 'http://tuia.sensezeal.com',
-               'User-Agent': 'Mozilla/5.0 (Linux; Android 11; M2012K11AC Build/RKQ1.200826.002; wv) AppleWebKit/537.36 '
-                             '(KHTML, like Gecko) Version/4.0 Chrome/86.0.4240.99 XWEB/3149 MMWEBSDK/20211001 Mobile '
-                             'Safari/537.36 MMWEBID/68 MicroMessenger/8.0.16.2040(0x28001053) Process/toolsmp '
-                             'WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64',
-               'Content-Type': 'application/json', 'Accept': '*/*',
-               'Referer': 'http://tuia.sensezeal.com/', 'Accept-Encoding': 'gzip, deflate, br',
-               'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'}
+    headers = {'Host': 'wechat.v2.traceint.com', 'Connection': 'keep-alive', 'App-Version': '2.1.5',
+               'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                             'Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) '
+                             'WindowsWechat(0x6307001e)', 'Content-Type': 'application/json', 'Accept': '*/*'}
     list_body = {"operationName": "getList",
                  "query": "query getList {\n userAuth {\n credit {\n tasks {\n id\n task_id\n task_name\n task_info\n "
                           "task_url\n credit_num\n contents\n conditions\n task_type\n status\n }\n staticTasks "
