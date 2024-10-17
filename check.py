@@ -28,13 +28,15 @@ class Check:
     def check_in(self):
         r = requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.list_body,
                           headers=self.headers).json()
-        print(r)
+        time.sleep(1)
         if r["data"]["userAuth"] is not None:
             try:
                 check_id = r["data"]["userAuth"]["credit"]["tasks"][0]["id"]
                 self.check_body["variables"]["user_task_id"] = check_id
-                r = requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.check_body,
+                requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.check_body,
                               headers=self.headers)
-                print(r.text)
+                time.sleep(1)
+                requests.post("https://wechat.v2.traceint.com/index.php/graphql/", json=self.check_body,
+                              headers=self.headers)
             except Exception as e:
                 print(e)
