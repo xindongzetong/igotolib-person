@@ -168,7 +168,7 @@ def index():
         password = os.getenv('password')
         new = hashlib.md5(f'{username}{password}'.encode()).hexdigest()
         if new == session_id:
-            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '设置日常任务', '打赏作者'])
+            act = input.actions('选座脚本', ['设置位置及时间', '设置打卡', '设置日常任务'])
             output.clear()
             if act == '设置位置及时间':
                 set_seat_time()
@@ -176,10 +176,6 @@ def index():
                 set_sign()
             elif act == '设置日常任务':
                 set_integral()
-            elif act == '打赏作者':
-                img = open('./appreciate.jpg', 'rb').read()
-                output.put_image(img, width='300px')
-                output.toast('微信扫一扫打赏作者', position='center', color='#2188ff', duration=5)
         else:
             login()
     else:
