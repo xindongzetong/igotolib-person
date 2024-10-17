@@ -78,7 +78,7 @@ docker run -d -p 8080:80 -e username=USER -e password=PWD --name igotolib shigua
 
 ##### 安卓手机：
 
-打开链接https://wwn.lanzouj.com/iV9mw03eqzsh下载安装nRF Connect，打开软件给蓝牙定位权限，打开手机定位和蓝牙靠近图书馆的蓝牙打卡机器，找到iBeacon并对应好UUID为下图所示字样：
+打开链接https://wwn.lanzouj.com/iV9mw03eqzsh 下载安装nRF Connect，打开软件给蓝牙定位权限，打开手机定位和蓝牙靠近图书馆的蓝牙打卡机器，找到iBeacon并对应好UUID为下图所示字样：
 
 ![image (3)](./assets/image%20(3)-1723080497023-2.png)
 
